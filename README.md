@@ -1,63 +1,75 @@
-# video-to-skill
+# video-to-skill (v2)
 
-Turn any video into a structured agent skill for Claude Code. Point it at a YouTube URL (or any yt-dlp-supported host) or a local audio/video file, and get back an on-demand knowledge base of the speaker's frameworks, techniques, demos, and anti-patterns — every claim cited with a timestamp.
+Turn any video into an evidence-grounded agent skill for Hermes, Claude Code, or Codex.
 
-Modeled on [book-to-skill](https://github.com/virgiliojr94/book-to-skill) (books → skills); this one does spoken knowledge: talks, tutorials, lectures, podcasts, courses.
+Point it at a YouTube URL (or any yt-dlp-supported video) or local media file, and get back an on-demand knowledge base of the speaker's frameworks, techniques, demos, and anti-patterns. Every claim is cited with an exact timestamp `[mm:ss]` and tagged with strict evidence provenance (`[seen]`, `[guessed]`, `[unknown]`).
+
+Modeled on [book-to-skill](https://github.com/virgiliojr94/book-to-skill) and enhanced with evidence grounding inspired by [REA](https://github.com/morluto/rea).
+
+## Key Features
+
+- **Multi-Host Native Support**: Installs for Hermes Agent (`~/.hermes/skills/`), Claude Code (`~/.claude/skills/`), or Codex (`~/.codex/skills/`).
+- **Resilient Multi-Engine Extraction**: Automated fallback ladder:
+  1. `summarize` CLI (fast transcript + timestamps, bypasses YouTube 429 bot checks)
+  2. `yt-dlp` (manual subs > auto subs > audio download)
+  3. Local Whisper ASR fallback (faster-whisper or whisper CLI)
+- **Evidence Provenance (`seen` | `guessed` | `unknown`)**: Prevents auto-caption hallucinations and ASR mishearings from masquerading as verified facts.
+- **Built-in Validation Harness**: `scripts/validate.py` enforces frontmatter structure, timestamp presence, evidence labels, and sanitization of private paths.
+- **Timestamp Citations**: Every framework and technique links back to `[mm:ss]` so you can jump straight to the relevant clip.
 
 ## Install
 
 ```bash
-npx skills add princepal9120/video-to-skill
-# or clone directly:
+# Add to Claude Code:
 git clone https://github.com/princepal9120/video-to-skill.git ~/.claude/skills/video-to-skill
+
+# Or add to Hermes Agent:
+git clone https://github.com/princepal9120/video-to-skill.git ~/.hermes/skills/content-creation/video-to-skill
 ```
 
 ## Usage
 
-In Claude Code (restart the session after installing):
-
+```bash
+# In Hermes / Claude Code:
+/video-to-skill https://www.youtube.com/watch?v=rw0fqnrZgNM rea-reverse-engineer-anything
 ```
-/video-to-skill https://www.youtube.com/watch?v=Ch4Sl0POBhU ralston-personal-brand
+
+### Deterministic Extraction CLI
+
+You can also run the extractor standalone:
+
+```bash
+# Check system dependencies
+python3 scripts/extract.py --check
+
+# Extract transcript and metadata
+python3 scripts/extract.py https://www.youtube.com/watch?v=rw0fqnrZgNM
 ```
 
-The skill walks the pipeline: preflight → transcript extraction → cost estimate → segment conversion → master SKILL.md with topic index.
+### Validation
 
-## What you get
+```bash
+python3 scripts/validate.py path/to/generated-skill
+```
+
+## Package Output Structure
 
 | File | Purpose |
-|------|---------|
-| `SKILL.md` | Core frameworks + segment/topic index (≤4k tokens, front-loaded) |
-| `segments/segNN-*.md` | One file per chapter/segment, loaded on-demand, timestamp-cited |
-| `timestamps.md` | Jump list back into the source video |
-
-Key differentiator vs reading a transcript dump: **every framework links back to `[mm:ss]`** so you re-watch 90 seconds instead of re-watching 6 hours.
-
-## How it works
-
-Two halves, same architecture as book-to-skill:
-
-1. **Deterministic extractor** (`scripts/extract.py`, stdlib-only Python) — downloads subtitles via yt-dlp (manual subs > auto subs), falls back to local Whisper transcription when no subs exist, parses/dedupes cues, demarcates chapters, writes `transcript.txt` + `metadata.json`.
-2. **Spec-driven generator** (`SKILL.md` workflow) — your agent follows the spec to convert transcripts into structured skill files: extract structure, not summaries; preserve the speaker's exact terminology; distinguish asserted vs demonstrated claims.
+|---|---|
+| `SKILL.md` | Core frameworks + topic index (<=4k tokens, front-loaded) |
+| `segments/segNN-*.md` | Detailed chapter & topic deep-dives |
+| `cheatsheet.md` | Decision rules, trade-off matrices, heuristics |
+| `patterns.md` | Step-by-step techniques and execution patterns |
+| `glossary.md` | Domain terminology with timestamp links |
+| `timestamps.md` | Complete jump list back to source video |
+| `sources.md` | Verification provenance and transcript source metadata |
 
 ## Dependencies
 
-- `yt-dlp` (URLs) — `brew install yt-dlp`
-- `ffmpeg` (local files / Whisper fallback) — `brew install ffmpeg`
+- `summarize` CLI (recommended) — `npm i -g @steipete/summarize`
+- `yt-dlp` — `brew install yt-dlp`
+- `ffmpeg` — `brew install ffmpeg`
 - `faster-whisper` (optional ASR fallback) — `pip3 install faster-whisper`
-
-Check your environment anytime:
-
-```bash
-python3 ~/.claude/skills/video-to-skill/scripts/extract.py --check
-```
-
-## Example output
-
-Converting Caleb Ralston's 6h22m personal-branding course produced [`ralston-personal-brand`](https://github.com/princepal9120/ralston-personal-brand): 30 timestamp-cited segment files across Branding/Content/Team/Monetize, master SKILL.md with topic index (~98k source tokens distilled into on-demand files).
-
-## Scope & limits
-
-Transcripts from auto-captions/Whisper contain recognition errors — verify exact wording against timestamps before quoting. Covers spoken content only (no visual demo analysis).
 
 ## License
 
