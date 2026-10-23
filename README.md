@@ -52,7 +52,16 @@ python3 scripts/extract.py https://www.youtube.com/watch?v=rw0fqnrZgNM
 python3 scripts/validate.py path/to/generated-skill
 ```
 
-## Package Output Structure
+## Skill Architecture & Custom Skill Generation
+
+`video-to-skill` adapts to different content genres by tailoring which artifacts are emphasized:
+
+- **Reverse Engineering & Systems (e.g. REA)**: Emphasizes API payloads, AST function traces, and the `[seen]/[guessed]/[unknown]` evidence ledger.
+- **Engineering Management & Workflows (e.g. Anthropic Claude Code)**: Emphasizes high-altitude mental models, specialist prompt expanders, and cross-agent review loops.
+- **Production Architecture & Ops (e.g. Vercel CEO)**: Emphasizes invariant contracts, direction audits to stop feature drift, and adversarial breaker agents.
+- **UI/UX & Design Systems (e.g. Top 6 AI Design Repos, Google Stitch)**: Emphasizes token extraction (`design.md`), multi-viewport responsive testing, and terminal CLI bridges.
+
+### Package Output Structure
 
 | File | Purpose |
 |---|---|
@@ -63,6 +72,22 @@ python3 scripts/validate.py path/to/generated-skill
 | `glossary.md` | Domain terminology with timestamp links |
 | `timestamps.md` | Complete jump list back to source video |
 | `sources.md` | Verification provenance and transcript source metadata |
+
+---
+
+## How to Generate New Custom Skills
+
+To turn any talk, course, or tutorial into a new domain-specific skill:
+
+```bash
+# In Hermes / Claude Code:
+/video-to-skill <video-or-course-url> [custom-skill-name]
+```
+
+1. **Extraction**: Fast, bot-resistant transcript retrieval with exact timestamps.
+2. **Analysis**: Framework and anti-pattern extraction mapped to chapter markers.
+3. **Evidence Tagging**: Explicit labeling of `[seen]` facts vs `[guessed]` conventions.
+4. **Validation**: Automated pass through `scripts/validate.py` before final installation into `~/.hermes/skills/` or `~/.claude/skills/`.
 
 ## Dependencies
 

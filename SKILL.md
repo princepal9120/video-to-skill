@@ -123,3 +123,36 @@ The validator verifies:
 4. Distinguish demonstrated capability from verbal claims.
 5. Keep `SKILL.md` front-loaded and lean (<=4,000 tokens). Detailed segments load on demand.
 6. Verify against `validate.py` before completing installation.
+
+---
+
+## Skill Extension: How to Generate More Specialized Skills
+
+`video-to-skill` adapts to different content genres by tailoring which artifacts are emphasized:
+
+### 1. Reverse-Engineering & Architecture Skills (like REA)
+- **Primary Source**: Technical deep dives, security audits, decompilations.
+- **Key Artifacts**: Trace contracts, network payloads, API boundaries, and `cheatsheet.md` decision trees.
+- **Evidence Rule**: Tag client-side observations as `[seen]`, inferred architecture as `[guessed]`, closed backends as `[unknown]`.
+
+### 2. Engineering Leadership & Process Skills (like Anthropic Claude Code)
+- **Primary Source**: Conference talks, developer workflows, system design retrospectives.
+- **Key Artifacts**: High-altitude mental models (`SKILL.md`), specialist meta-prompts, review loops, and multidisciplinary checklists.
+- **Evidence Rule**: Focus on verified outcomes and empirical rules of thumb.
+
+### 3. Production Playbook Skills (like Vercel CEO)
+- **Primary Source**: Founder interviews, post-mortems, scaling guides.
+- **Key Artifacts**: Operational invariants (`AGENTS.md` rules), adversarial breaker scripts, direction audits, and anti-drift commands.
+- **Evidence Rule**: Distinguish personal heuristics from hard system invariants.
+
+### 4. UI/UX & Frontend Design System Skills (like Top 6 AI Design Repos & Google Stitch)
+- **Primary Source**: Tool showcases, design system demos, frontend tutorials.
+- **Key Artifacts**: Component tokens (`design.md`), multi-viewport testing scripts, motion/animation formulas, and CLI automation.
+- **Evidence Rule**: Ground every style recommendation in verifiable CSS parameters or tool outputs.
+
+### Generating Any New Custom Skill: One Command
+```bash
+# In Hermes / Claude Code:
+/video-to-skill <video-or-course-url> [custom-skill-name]
+```
+The extractor will automatically fetch the clean transcript, map chapter timestamps, author modular segments with evidence labels, and run mechanical validation before saving to your skills library.
